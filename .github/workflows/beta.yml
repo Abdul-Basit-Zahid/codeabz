@@ -24,14 +24,14 @@ jobs:
         id: setup-git-committer
         uses: ./.github/actions/setup-git-committer
         with:
-          opencode-app-id: ${{ vars.OPENCODE_APP_ID }}
-          opencode-app-secret: ${{ secrets.OPENCODE_APP_SECRET }}
+          codeabz-app-id: ${{ vars.CODEABZ_APP_ID }}
+          codeabz-app-secret: ${{ secrets.CODEABZ_APP_SECRET }}
 
-      - name: Install OpenCode
-        run: bun i -g opencode-ai
+      - name: Install codeabz
+        run: bun i -g codeabz
 
       - name: Sync beta branch
         env:
           GH_TOKEN: ${{ steps.setup-git-committer.outputs.token }}
-          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          CODEABZ_API_KEY: ${{ secrets.CODEABZ_API_KEY }}
         run: bun script/beta.ts

@@ -22,8 +22,8 @@ jobs:
         id: committer
         uses: ./.github/actions/setup-git-committer
         with:
-          opencode-app-id: ${{ vars.OPENCODE_APP_ID }}
-          opencode-app-secret: ${{ secrets.OPENCODE_APP_SECRET }}
+          codeabz-app-id: ${{ vars.CODEABZ_APP_ID }}
+          codeabz-app-secret: ${{ secrets.CODEABZ_APP_SECRET }}
 
       - name: Generate
         run: ./script/generate.ts

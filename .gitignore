@@ -20,6 +20,7 @@ ts-dist
 /result
 refs
 Session.vim
+/codeabz.json
 /opencode.json
 a.out
 target
@@ -27,6 +28,7 @@ target
 .direnv/
 
 # Local dev files
+codeabz-dev
 opencode-dev
 UPCOMING_CHANGELOG.md
 logs/

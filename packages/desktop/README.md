@@ -1,6 +1,6 @@
-# OpenCode Desktop
+# codeabz Desktop
 
-The OpenCode Desktop app, built with Electron.
+The codeabz Desktop app, built with Electron.
 
 ## Development
 

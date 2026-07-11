@@ -1,8 +1,8 @@
 const model_id = "claude-3-7-sonnet"
 
 export const popularProviders = [
-  "opencode",
-  "opencode-go",
+  "codeabz",
+  "codeabz-go",
   "anthropic",
   "github-copilot",
   "openai",

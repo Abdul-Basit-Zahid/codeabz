@@ -3,7 +3,7 @@
 </p>
 <p align="center"><strong>CodeABZ</strong> — The AI coding agent. Ollama-first, local & free.</p>
 <p align="center">
-  <em>Based on <a href="https://github.com/anomalyco/opencode">opencode</a> (MIT License)</em>
+  <em>Based on <a href="https://github.com/Abdul-Basit-Zahid/codeabz">codeabz</a> (MIT License)</em>
 </p>
 
 ---
@@ -42,7 +42,7 @@ Or from source:
 git clone https://github.com/Abdul-Basit-Zahid/codeabz.git
 cd codeabz
 bun install
-bun run --cwd packages/opencode src/index.ts
+bun run --cwd packages/codeabz src/index.ts
 ```
 
 ### Usage
@@ -54,8 +54,8 @@ codeabz run "fix this bug"  # Autonomous task mode
 
 ### License
 
-CodeABZ is based on [opencode](https://github.com/anomalyco/opencode) which is MIT licensed. This project maintains the same license.
+CodeABZ is based on [codeabz](https://github.com/Abdul-Basit-Zahid/codeabz) which is MIT licensed. This project maintains the same license.
 
 ---
 
-**Disclaimer:** This project is a fork of opencode and is not affiliated with the OpenCode team or anomalyco.
+**Disclaimer:** This project is a fork of codeabz and is not affiliated with the codeabz team or anomalyco.

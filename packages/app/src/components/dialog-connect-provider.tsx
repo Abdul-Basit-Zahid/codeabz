@@ -1,14 +1,14 @@
-import type { ProviderAuthAuthorization, ProviderAuthMethod } from "@opencode-ai/sdk/v2/client"
-import { Button } from "@opencode-ai/ui/button"
-import { useDialog } from "@opencode-ai/ui/context/dialog"
-import { Dialog } from "@opencode-ai/ui/dialog"
-import { Icon } from "@opencode-ai/ui/icon"
-import { IconButton } from "@opencode-ai/ui/icon-button"
-import { List, type ListRef } from "@opencode-ai/ui/list"
-import { ProviderIcon } from "@opencode-ai/ui/provider-icon"
-import { Spinner } from "@opencode-ai/ui/spinner"
-import { Tag } from "@opencode-ai/ui/tag"
-import { TextField } from "@opencode-ai/ui/text-field"
+import type { ProviderAuthAuthorization, ProviderAuthMethod } from "@codeabz/sdk/v2/client"
+import { Button } from "@codeabz/ui/button"
+import { useDialog } from "@codeabz/ui/context/dialog"
+import { Dialog } from "@codeabz/ui/dialog"
+import { Icon } from "@codeabz/ui/icon"
+import { IconButton } from "@codeabz/ui/icon-button"
+import { List, type ListRef } from "@codeabz/ui/list"
+import { ProviderIcon } from "@codeabz/ui/provider-icon"
+import { Spinner } from "@codeabz/ui/spinner"
+import { Tag } from "@codeabz/ui/tag"
+import { TextField } from "@codeabz/ui/text-field"
 import { showToast } from "@/utils/toast"
 import {
   type Accessor,
@@ -105,7 +105,7 @@ function ProviderPicker(props: { directory?: Accessor<string | undefined>; onSel
     if (id === "anthropic") return language.t("dialog.provider.anthropic.note")
     if (id === "openai") return language.t("dialog.provider.openai.note")
     if (id.startsWith("github-copilot")) return language.t("dialog.provider.copilot.note")
-    if (id === "opencode-go") return language.t("dialog.provider.opencodeGo.tagline")
+    if (id === "codeabz-go") return language.t("dialog.provider.codeabzGo.tagline")
     return undefined
   }
 
@@ -144,17 +144,17 @@ function ProviderPicker(props: { directory?: Accessor<string | undefined>; onSel
         <div class="px-1.25 w-full flex items-center gap-x-3">
           <ProviderIcon data-slot="list-item-extra-icon" id={i.id} />
           <span>{i.name}</span>
-          <Show when={i.id === "opencode"}>
-            <div class="text-14-regular text-text-weak">{language.t("dialog.provider.opencode.tagline")}</div>
+          <Show when={i.id === "codeabz"}>
+            <div class="text-14-regular text-text-weak">{language.t("dialog.provider.codeabz.tagline")}</div>
           </Show>
           <Show when={i.id === CUSTOM_ID}>
             <Tag>{language.t("settings.providers.tag.custom")}</Tag>
           </Show>
-          <Show when={i.id === "opencode"}>
+          <Show when={i.id === "codeabz"}>
             <Tag>{language.t("dialog.provider.tag.recommended")}</Tag>
           </Show>
           <Show when={note(i.id)}>{(value) => <div class="text-14-regular text-text-weak">{value()}</div>}</Show>
-          <Show when={i.id === "opencode-go"}>
+          <Show when={i.id === "codeabz-go"}>
             <Tag>{language.t("dialog.provider.tag.recommended")}</Tag>
           </Show>
         </div>
@@ -584,16 +584,16 @@ function ProviderConnection(props: {
     return (
       <div class="flex flex-col gap-6">
         <Switch>
-          <Match when={provider().id === "opencode"}>
+          <Match when={provider().id === "codeabz"}>
             <div class="flex flex-col gap-4">
-              <div class="text-14-regular text-text-base">{language.t("provider.connect.opencodeZen.line1")}</div>
-              <div class="text-14-regular text-text-base">{language.t("provider.connect.opencodeZen.line2")}</div>
+              <div class="text-14-regular text-text-base">{language.t("provider.connect.codeabzZen.line1")}</div>
+              <div class="text-14-regular text-text-base">{language.t("provider.connect.codeabzZen.line2")}</div>
               <div class="text-14-regular text-text-base">
-                {language.t("provider.connect.opencodeZen.visit.prefix")}
-                <Link href="https://opencode.ai/zen" tabIndex={-1}>
-                  {language.t("provider.connect.opencodeZen.visit.link")}
+                {language.t("provider.connect.codeabzZen.visit.prefix")}
+                <Link href="https://github.com/Abdul-Basit-Zahid/codeabz/zen" tabIndex={-1}>
+                  {language.t("provider.connect.codeabzZen.visit.link")}
                 </Link>
-                {language.t("provider.connect.opencodeZen.visit.suffix")}
+                {language.t("provider.connect.codeabzZen.visit.suffix")}
               </div>
             </div>
           </Match>

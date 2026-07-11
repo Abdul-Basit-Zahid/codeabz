@@ -72,7 +72,7 @@ export type DesktopMenu = {
 export const DESKTOP_MENU: DesktopMenu[] = [
   {
     id: "app",
-    label: "OpenCode",
+    label: "codeabz",
     platforms: ["macos"],
     items: [
       { type: "item", role: "about" },
@@ -200,19 +200,19 @@ export const DESKTOP_MENU: DesktopMenu[] = [
     id: "help",
     label: "Help",
     items: [
-      { type: "item", label: "OpenCode Documentation", href: "https://opencode.ai/docs" },
-      { type: "item", label: "Support Forum", href: "https://discord.com/invite/opencode" },
+      { type: "item", label: "codeabz Documentation", href: "https://github.com/Abdul-Basit-Zahid/codeabz/docs" },
+      { type: "item", label: "Support Forum", href: "https://discord.com/invite/codeabz" },
       { type: "item", label: "Export Logs...", command: "logs.export" },
       { type: "separator" },
       {
         type: "item",
         label: "Share Feedback",
-        href: "https://github.com/anomalyco/opencode/issues/new?template=feature_request.yml",
+        href: "https://github.com/Abdul-Basit-Zahid/codeabz/issues/new?template=feature_request.yml",
       },
       {
         type: "item",
         label: "Report a Bug",
-        href: "https://github.com/anomalyco/opencode/issues/new?template=bug_report.yml",
+        href: "https://github.com/Abdul-Basit-Zahid/codeabz/issues/new?template=bug_report.yml",
       },
     ],
   },

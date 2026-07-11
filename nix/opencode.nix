@@ -101,7 +101,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   meta = {
     description = "The open source coding agent";
-    homepage = "https://opencode.ai";
+    homepage = "https://github.com/Abdul-Basit-Zahid/codeabz";
     license = lib.licenses.mit;
     mainProgram = "opencode";
     inherit (node_modules.meta) platforms;
