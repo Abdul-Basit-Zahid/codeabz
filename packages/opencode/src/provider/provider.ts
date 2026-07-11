@@ -176,6 +176,13 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
           },
         },
       }),
+    ollama: () =>
+      Effect.succeed({
+        autoload: true,
+        async getModel(sdk: any, modelID: string) {
+          return sdk.chat?.(modelID) ?? sdk.languageModel(modelID)
+        },
+      }),
     opencode: Effect.fnUntraced(function* (input: Info) {
       const env = yield* dep.env()
       const hasKey = iife(() => {
@@ -1334,6 +1341,51 @@ const layer = Layer.effect(
         const modelsDev = yield* modelsDevSvc.get()
         const catalog = mapValues(modelsDev, fromModelsDevProvider)
         const database = mapValues(catalog, toPublicInfo)
+
+        // Auto-discover local Ollama models
+        const ollamaID = ProviderV2.ID.make("ollama")
+        database[ollamaID] = {
+          id: ollamaID,
+          name: "Ollama (local)",
+          source: "custom",
+          env: [],
+          options: { baseURL: "http://localhost:11434/v1" },
+          models: yield* Effect.promise(async () => {
+            try {
+              const res = await fetch("http://localhost:11434/api/tags")
+              if (!res.ok) return {}
+              const data = await res.json() as { models?: Array<{ name: string; details?: { family?: string; parameter_size?: string } }> }
+              if (!data.models) return {}
+              const models: Record<string, Model> = {}
+              for (const m of data.models) {
+                const cleanName = m.name.replace(/:latest$/, "")
+                models[cleanName] = {
+                  id: ModelV2.ID.make(cleanName),
+                  providerID: ollamaID,
+                  api: { id: cleanName, npm: "@ai-sdk/openai-compatible", url: "" },
+                  name: m.name,
+                  family: m.details?.family ?? "",
+                  capabilities: {
+                    temperature: true, reasoning: false, attachment: false, toolcall: true,
+                    input: { text: true, audio: false, image: false, video: false, pdf: false },
+                    output: { text: true, audio: false, image: false, video: false, pdf: false },
+                    interleaved: false,
+                  },
+                  cost: { input: 0, output: 0, cache: { read: 0, write: 0 } },
+                  limit: { context: 128000, output: 4096 },
+                  status: "active",
+                  options: {},
+                  headers: {},
+                  release_date: "",
+                  variants: {},
+                }
+              }
+              return models
+            } catch {
+              return {}
+            }
+          }),
+        }
 
         const providers: Record<ProviderV2.ID, Info> = {} as Record<ProviderV2.ID, Info>
         const languages = new Map<string, LanguageModelV3>()
