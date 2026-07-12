@@ -31,7 +31,6 @@ import { ModelV2 } from "@codeabz/core/model"
 import { ModelStatus } from "./model-status"
 import { RuntimeFlags } from "@/effect/runtime-flags"
 import { ProviderError } from "./error"
-import { ensureOllama } from "../ollama/setup"
 
 const OPENAI_HEADER_TIMEOUT_DEFAULT = 10_000
 
@@ -1344,11 +1343,8 @@ const layer = Layer.effect(
         const catalog = mapValues(modelsDev, fromModelsDevProvider)
         const database = mapValues(catalog, toPublicInfo)
 
-        // Start Ollama in background without blocking the UI
-        ensureOllama()
-
-        // Ollama provider — always available with common model references.
-        // If Ollama is running locally, auto-discovered models replace the defaults.
+        // Ensure Ollama is running, then discover models.
+        // If Ollama is unavailable, show default model references so the UI isn't empty.
         const ollamaID = ProviderV2.ID.make("ollama")
         function makeOllamaModel(id: string, name: string, family: string, ctx: number): Model {
           return {
@@ -1369,32 +1365,35 @@ const layer = Layer.effect(
             options: {}, headers: {}, release_date: "", variants: {},
           }
         }
-        const defaultOllamaModels: Record<string, Model> = {
-          "phi3:mini": makeOllamaModel("phi3:mini", "Phi-3 Mini 3.8B", "phi3", 128000),
-          "llama3.2:1b": makeOllamaModel("llama3.2:1b", "Llama 3.2 1B", "llama", 128000),
-          "llama3.2:3b": makeOllamaModel("llama3.2:3b", "Llama 3.2 3B", "llama", 128000),
-          "qwen2.5:1.5b": makeOllamaModel("qwen2.5:1.5b", "Qwen 2.5 1.5B", "qwen2", 32000),
-          "gemma2:2b": makeOllamaModel("gemma2:2b", "Gemma 2 2B", "gemma", 8000),
-          "llama3.2": makeOllamaModel("llama3.2", "Llama 3.2 3B", "llama", 128000),
-          "mistral": makeOllamaModel("mistral", "Mistral 7B", "mistral", 32000),
-          "qwen2.5": makeOllamaModel("qwen2.5", "Qwen 2.5 7B", "qwen2", 32000),
-          "llama3.1": makeOllamaModel("llama3.1", "Llama 3.1 8B", "llama", 128000),
-        }
         const ollamaModels: Record<string, Model> = yield* Effect.promise(async () => {
-          try {
-            const res = await fetch("http://localhost:11434/api/tags")
-            if (!res.ok) return defaultOllamaModels
-            const data = await res.json() as { models?: Array<{ name: string; details?: { family?: string; parameter_size?: string } }> }
-            if (!data.models?.length) return defaultOllamaModels
-            const models: Record<string, Model> = {}
-            for (const m of data.models) {
-              const cleanName = m.name.replace(/:latest$/, "")
-              const size = m.details?.parameter_size ? ` ${m.details.parameter_size}` : ""
-              models[cleanName] = makeOllamaModel(cleanName, `${m.name.replace(/:latest$/, "")}${size}`, m.details?.family ?? "", 128000)
+          // Quick attempt to start Ollama so discovery succeeds
+          const bin = await import("../ollama/setup").then((m) => m.ensureOllama())
+          if (bin) {
+            for (let i = 0; i < 6; i++) {
+              try {
+                const res = await fetch("http://localhost:11434/api/tags")
+                if (res.ok) {
+                  const data = await res.json() as { models?: Array<{ name: string; details?: { family?: string; parameter_size?: string } }> }
+                  if (data.models?.length) {
+                    const models: Record<string, Model> = {}
+                    for (const m of data.models) {
+                      const cleanName = m.name.replace(/:latest$/, "")
+                      const size = m.details?.parameter_size ? ` ${m.details.parameter_size}` : ""
+                      models[cleanName] = makeOllamaModel(cleanName, `${m.name.replace(/:latest$/, "")}${size}`, m.details?.family ?? "", 128000)
+                    }
+                    return models
+                  }
+                }
+              } catch {}
+              await new Promise((r) => setTimeout(r, 500))
             }
-            return models
-          } catch {
-            return defaultOllamaModels
+          }
+          // Fallback: common small models so UI isn't empty
+          return {
+            "phi3:mini": makeOllamaModel("phi3:mini", "Phi-3 Mini 3.8B", "phi3", 128000),
+            "llama3.2:1b": makeOllamaModel("llama3.2:1b", "Llama 3.2 1B", "llama", 128000),
+            "qwen2.5:1.5b": makeOllamaModel("qwen2.5:1.5b", "Qwen 2.5 1.5B", "qwen2", 32000),
+            "llama3.2:3b": makeOllamaModel("llama3.2:3b", "Llama 3.2 3B", "llama", 128000),
           }
         })
         database[ollamaID] = {

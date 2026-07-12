@@ -47,15 +47,15 @@ function findOllama(): string | null {
   return null
 }
 
-export async function ensureOllama(): Promise<void> {
-  if (await isOllamaRunning()) return
+export async function ensureOllama(): Promise<boolean> {
+  if (await isOllamaRunning()) return true
   const bin = findOllama()
-  if (!bin) return
+  if (!bin) return false
   const child = spawn(bin, ["serve"], { stdio: "ignore", detached: true, windowsHide: true })
   child.unref()
-  // Quick wait - 3s max
   for (let i = 0; i < 6; i++) {
-    if (await quickFetch(OLLAMA_API)) return
+    if (await quickFetch(OLLAMA_API)) return true
     await new Promise((r) => setTimeout(r, 500))
   }
+  return false
 }
