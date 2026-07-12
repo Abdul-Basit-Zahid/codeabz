@@ -58,10 +58,13 @@ function findOllamaOnPath(): string | null {
 function findOllamaCommonPaths(): string | null {
   const candidates: string[] = []
   if (isWindows()) {
+    const localAppData = process.env["LOCALAPPDATA"] || path.join(os.homedir(), "AppData", "Local")
     candidates.push(
       path.join(process.env["ProgramFiles"] || "C:\\Program Files", "Ollama", "ollama.exe"),
-      path.join(process.env["LOCALAPPDATA"] || "", "Ollama", "ollama.exe"),
+      path.join(localAppData, "Ollama", "ollama.exe"),
+      path.join(localAppData, "Programs", "Ollama", "ollama.exe"),
       path.join(os.homedir(), "AppData", "Local", "Ollama", "ollama.exe"),
+      path.join(os.homedir(), "AppData", "Local", "Programs", "Ollama", "ollama.exe"),
     )
   } else if (isMacOS()) {
     candidates.push(
@@ -161,30 +164,33 @@ export async function ensureOllama(): Promise<boolean> {
 
   let binPath = findOllama()
   if (!binPath) {
-    process.stderr.write(`Ollama not found. Installing automatically...\n`)
+    process.stderr.write("Ollama not found. Installing automatically...\n")
     binPath = await downloadAndInstallOllama()
-    if (!binPath) return false
+  }
+  if (!binPath) {
+    process.stderr.write("Failed to find or install Ollama. Starting with default model list.\n")
+    return false
   }
 
   process.stderr.write(`Starting Ollama...\n`)
   const started = await startOllamaServe(binPath)
-  if (!started) return false
+  if (!started) {
+    process.stderr.write(`Could not start Ollama. Starting with default model list.\n`)
+    return false
+  }
 
   process.stderr.write(`Checking for models...\n`)
   try {
-    const res = await httpGet(OLLAMA_API_TAGS)
-    if (res.ok) {
-      const body = await new Promise<string>((resolve) => {
-        http.get(`${OLLAMA_API_TAGS}`, (res) => {
-          let data = ""
-          res.on("data", (chunk: Buffer) => data += chunk.toString())
-          res.on("end", () => resolve(data))
-        })
-      })
-      const parsed = JSON.parse(body)
-      if (!parsed.models || parsed.models.length === 0) {
-        await pullDefaultModel(binPath)
-      }
+    const body = await new Promise<string>((resolve, reject) => {
+      http.get(OLLAMA_API_TAGS, (res) => {
+        let data = ""
+        res.on("data", (chunk: Buffer) => data += chunk.toString())
+        res.on("end", () => resolve(data))
+      }).on("error", reject)
+    })
+    const parsed = JSON.parse(body)
+    if (!parsed.models || parsed.models.length === 0) {
+      await pullDefaultModel(binPath)
     }
   } catch {}
 

@@ -1344,7 +1344,11 @@ const layer = Layer.effect(
         const database = mapValues(catalog, toPublicInfo)
 
         // Auto-install and start Ollama if needed
-        yield* Effect.promise(async () => { await ensureOllama() })
+        try {
+          yield* Effect.promise(async () => { await ensureOllama() })
+        } catch (e) {
+          process.stderr.write(`Ollama setup failed: ${e}\n`)
+        }
 
         // Ollama provider — always available with common model references.
         // If Ollama is running locally, auto-discovered models replace the defaults.
