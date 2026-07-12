@@ -21,8 +21,24 @@ export function fromSchema(schema: Schema.Top): JSONSchema7 {
   return inlined
 }
 
+function stripDescriptions(schema: JSONSchema7): JSONSchema7 {
+  if (typeof schema !== "object" || schema === null) return schema
+  const { description, ...rest } = schema
+  const cleaned: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(rest)) {
+    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+      cleaned[key] = stripDescriptions(value as JSONSchema7)
+    } else if (Array.isArray(value)) {
+      cleaned[key] = value.map((item) => (typeof item === "object" && item !== null ? stripDescriptions(item as JSONSchema7) : item))
+    } else {
+      cleaned[key] = value
+    }
+  }
+  return cleaned as JSONSchema7
+}
+
 export function fromTool(tool: Tool.Def): JSONSchema7 {
-  return tool.jsonSchema ?? fromSchema(tool.parameters as Schema.Top)
+  return stripDescriptions(tool.jsonSchema ?? fromSchema(tool.parameters as Schema.Top))
 }
 
 function normalize(value: unknown, options: { stripNull?: boolean } = {}): unknown {
