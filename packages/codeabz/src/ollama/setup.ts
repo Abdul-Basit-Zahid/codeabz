@@ -51,9 +51,7 @@ export async function ensureOllama(): Promise<boolean> {
   if (await isOllamaRunning()) return true
   const bin = findOllama()
   if (!bin) return false
-  // Enable GPU acceleration optimizations
-  process.env.OLLAMA_FLASH_ATTENTION = "1"
-  const child = spawn(bin, ["serve"], { stdio: "ignore", detached: true, windowsHide: true, env: { ...process.env, OLLAMA_FLASH_ATTENTION: "1" } })
+  const child = spawn(bin, ["serve"], { stdio: "ignore", detached: true, windowsHide: true })
   child.unref()
   for (let i = 0; i < 6; i++) {
     if (await quickFetch(OLLAMA_API)) return true
