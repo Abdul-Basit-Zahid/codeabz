@@ -13,7 +13,7 @@ import { CliRenderEvents, createCliRenderer, type CliRenderer, type ScrollbackWr
 import { createDefaultOpenTuiKeymap } from "@opentui/keymap/opentui"
 import { Global } from "@codeabz/core/global"
 import { openEditor } from "@codeabz/tui/editor"
-import { registercodeabzKeymap } from "@codeabz/tui/keymap"
+import { registerCodeabzKeymap } from "@codeabz/tui/keymap"
 import { Session as SessionApi } from "@/session/session"
 import * as Locale from "@/util/locale"
 import { resolveInteractiveStdin } from "./runtime.stdin"
@@ -196,7 +196,7 @@ export async function createRuntimeLifecycle(input: LifecycleInput): Promise<Lif
     const theme = await resolveRunTheme(renderer)
     renderer.setBackgroundColor(theme.background)
     const keymap = createDefaultOpenTuiKeymap(renderer)
-    unregisterKeymap = registercodeabzKeymap(keymap, renderer, input.tuiConfig)
+    unregisterKeymap = registerCodeabzKeymap(keymap, renderer, input.tuiConfig)
     const state: SplashState = {
       entry: false,
       exit: false,

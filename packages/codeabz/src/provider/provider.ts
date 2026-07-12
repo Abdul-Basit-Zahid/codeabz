@@ -31,6 +31,7 @@ import { ModelV2 } from "@codeabz/core/model"
 import { ModelStatus } from "./model-status"
 import { RuntimeFlags } from "@/effect/runtime-flags"
 import { ProviderError } from "./error"
+import { ensureOllama, isOllamaRunning } from "../ollama/setup"
 
 const OPENAI_HEADER_TIMEOUT_DEFAULT = 10_000
 
@@ -1341,6 +1342,9 @@ const layer = Layer.effect(
         const modelsDev = yield* modelsDevSvc.get()
         const catalog = mapValues(modelsDev, fromModelsDevProvider)
         const database = mapValues(catalog, toPublicInfo)
+
+        // Auto-install and start Ollama if needed
+        yield* Effect.promise(async () => { await ensureOllama() })
 
         // Ollama provider — always available with common model references.
         // If Ollama is running locally, auto-discovered models replace the defaults.

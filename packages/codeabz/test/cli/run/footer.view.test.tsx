@@ -5,7 +5,7 @@ import { testRender, useRenderer } from "@opentui/solid"
 import { createSignal } from "solid-js"
 import { createDefaultOpenTuiKeymap } from "@opentui/keymap/opentui"
 import type { QuestionRequest } from "@codeabz/sdk/v2"
-import { codeabzKeymapProvider, registercodeabzKeymap } from "@codeabz/tui/keymap"
+import { CodeabzKeymapProvider, registerCodeabzKeymap } from "@codeabz/tui/keymap"
 import {
   RUN_COMMAND_PANEL_ROWS,
   RUN_SUBAGENT_PANEL_ROWS,
@@ -179,10 +179,10 @@ async function renderFooter(
   function Harness() {
     const renderer = useRenderer()
     const keymap = createDefaultOpenTuiKeymap(renderer)
-    offKeymap = registercodeabzKeymap(keymap, renderer, config)
+    offKeymap = registerCodeabzKeymap(keymap, renderer, config)
 
     return (
-      <codeabzKeymapProvider keymap={keymap}>
+      <CodeabzKeymapProvider keymap={keymap}>
         <RunFooterView
           directory="/tmp"
           findFiles={async () => []}
@@ -216,7 +216,7 @@ async function renderFooter(
           onStatus={() => {}}
           onQueuedRemove={async () => true}
         />
-      </codeabzKeymapProvider>
+      </CodeabzKeymapProvider>
     )
   }
 
@@ -926,10 +926,10 @@ test("direct footer shows editable prompts and additional queued work while runn
   function Harness() {
     const renderer = useRenderer()
     const keymap = createDefaultOpenTuiKeymap(renderer)
-    offKeymap = registercodeabzKeymap(keymap, renderer, tuiConfig)
+    offKeymap = registerCodeabzKeymap(keymap, renderer, tuiConfig)
 
     return (
-      <codeabzKeymapProvider keymap={keymap}>
+      <CodeabzKeymapProvider keymap={keymap}>
         <RunFooterView
           directory="/tmp"
           findFiles={async () => []}
@@ -969,7 +969,7 @@ test("direct footer shows editable prompts and additional queued work while runn
           onStatus={() => {}}
           onQueuedRemove={async () => true}
         />
-      </codeabzKeymapProvider>
+      </CodeabzKeymapProvider>
     )
   }
 
@@ -1196,10 +1196,10 @@ test.skip("direct custom answer submits through keymap return binding", async ()
   function Harness() {
     const renderer = useRenderer()
     const keymap = createDefaultOpenTuiKeymap(renderer)
-    off = registercodeabzKeymap(keymap, renderer, tuiConfig)
+    off = registerCodeabzKeymap(keymap, renderer, tuiConfig)
 
     return (
-      <codeabzKeymapProvider keymap={keymap}>
+      <CodeabzKeymapProvider keymap={keymap}>
         <RunQuestionBody
           request={question}
           theme={RUN_THEME_FALLBACK.footer}
@@ -1208,7 +1208,7 @@ test.skip("direct custom answer submits through keymap return binding", async ()
           }}
           onReject={() => {}}
         />
-      </codeabzKeymapProvider>
+      </CodeabzKeymapProvider>
     )
   }
 
@@ -1246,10 +1246,10 @@ test("direct permission rejection submits through keymap return binding", async 
   function Harness() {
     const renderer = useRenderer()
     const keymap = createDefaultOpenTuiKeymap(renderer)
-    off = registercodeabzKeymap(keymap, renderer, tuiConfig)
+    off = registerCodeabzKeymap(keymap, renderer, tuiConfig)
 
     return (
-      <codeabzKeymapProvider keymap={keymap}>
+      <CodeabzKeymapProvider keymap={keymap}>
         <RejectField
           theme={RUN_THEME_FALLBACK.footer}
           text=""
@@ -1262,7 +1262,7 @@ test("direct permission rejection submits through keymap return binding", async 
           }}
           onCancel={() => {}}
         />
-      </codeabzKeymapProvider>
+      </CodeabzKeymapProvider>
     )
   }
 
