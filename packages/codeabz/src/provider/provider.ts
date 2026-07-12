@@ -1342,49 +1342,63 @@ const layer = Layer.effect(
         const catalog = mapValues(modelsDev, fromModelsDevProvider)
         const database = mapValues(catalog, toPublicInfo)
 
-        // Auto-discover local Ollama models
+        // Ollama provider — always available with common model references.
+        // If Ollama is running locally, auto-discovered models replace the defaults.
         const ollamaID = ProviderV2.ID.make("ollama")
+        function makeOllamaModel(id: string, name: string, family: string, ctx: number): Model {
+          return {
+            id: ModelV2.ID.make(id),
+            providerID: ollamaID,
+            api: { id, npm: "@ai-sdk/openai-compatible", url: "" },
+            name,
+            family,
+            capabilities: {
+              temperature: true, reasoning: false, attachment: false, toolcall: true,
+              input: { text: true, audio: false, image: false, video: false, pdf: false },
+              output: { text: true, audio: false, image: false, video: false, pdf: false },
+              interleaved: false,
+            },
+            cost: { input: 0, output: 0, cache: { read: 0, write: 0 } },
+            limit: { context: ctx, output: 4096 },
+            status: "active",
+            options: {}, headers: {}, release_date: "", variants: {},
+          }
+        }
+        const defaultOllamaModels: Record<string, Model> = {
+          "llama3.2": makeOllamaModel("llama3.2", "Llama 3.2", "llama", 128000),
+          "llama3.1": makeOllamaModel("llama3.1", "Llama 3.1", "llama", 128000),
+          "mistral": makeOllamaModel("mistral", "Mistral", "mistral", 32000),
+          "codellama": makeOllamaModel("codellama", "Code Llama", "llama", 16000),
+          "gemma2": makeOllamaModel("gemma2", "Gemma 2", "gemma", 8000),
+          "phi3": makeOllamaModel("phi3", "Phi-3", "phi3", 128000),
+          "qwen2.5": makeOllamaModel("qwen2.5", "Qwen 2.5", "qwen2", 32000),
+          "deepseek-coder": makeOllamaModel("deepseek-coder", "DeepSeek Coder", "deepseek", 16000),
+          "llama3.2:1b": makeOllamaModel("llama3.2:1b", "Llama 3.2 1B", "llama", 128000),
+          "llama3.2:3b": makeOllamaModel("llama3.2:3b", "Llama 3.2 3B", "llama", 128000),
+        }
+        const ollamaModels: Record<string, Model> = yield* Effect.promise(async () => {
+          try {
+            const res = await fetch("http://localhost:11434/api/tags")
+            if (!res.ok) return defaultOllamaModels
+            const data = await res.json() as { models?: Array<{ name: string; details?: { family?: string; parameter_size?: string } }> }
+            if (!data.models?.length) return defaultOllamaModels
+            const models: Record<string, Model> = {}
+            for (const m of data.models) {
+              const cleanName = m.name.replace(/:latest$/, "")
+              models[cleanName] = makeOllamaModel(cleanName, m.name, m.details?.family ?? "", 128000)
+            }
+            return models
+          } catch {
+            return defaultOllamaModels
+          }
+        })
         database[ollamaID] = {
           id: ollamaID,
           name: "Ollama (local)",
           source: "custom",
           env: [],
           options: { baseURL: "http://localhost:11434/v1" },
-          models: yield* Effect.promise(async () => {
-            try {
-              const res = await fetch("http://localhost:11434/api/tags")
-              if (!res.ok) return {}
-              const data = await res.json() as { models?: Array<{ name: string; details?: { family?: string; parameter_size?: string } }> }
-              if (!data.models) return {}
-              const models: Record<string, Model> = {}
-              for (const m of data.models) {
-                const cleanName = m.name.replace(/:latest$/, "")
-                models[cleanName] = {
-                  id: ModelV2.ID.make(cleanName),
-                  providerID: ollamaID,
-                  api: { id: cleanName, npm: "@ai-sdk/openai-compatible", url: "" },
-                  name: m.name,
-                  family: m.details?.family ?? "",
-                  capabilities: {
-                    temperature: true, reasoning: false, attachment: false, toolcall: true,
-                    input: { text: true, audio: false, image: false, video: false, pdf: false },
-                    output: { text: true, audio: false, image: false, video: false, pdf: false },
-                    interleaved: false,
-                  },
-                  cost: { input: 0, output: 0, cache: { read: 0, write: 0 } },
-                  limit: { context: 128000, output: 4096 },
-                  status: "active",
-                  options: {},
-                  headers: {},
-                  release_date: "",
-                  variants: {},
-                }
-              }
-              return models
-            } catch {
-              return {}
-            }
-          }),
+          models: ollamaModels,
         }
 
         const providers: Record<ProviderV2.ID, Info> = {} as Record<ProviderV2.ID, Info>
