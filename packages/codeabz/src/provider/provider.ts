@@ -1374,8 +1374,13 @@ const layer = Layer.effect(
                 if (res.ok) {
                   const data = await res.json() as { models?: Array<{ name: string; details?: { family?: string; parameter_size?: string } }> }
                   if (data.models?.length) {
+                    const sorted = [...data.models].sort((a, b) => {
+                      const sizeA = parseFloat(a.details?.parameter_size?.replace(/[^0-9.]/g, "") ?? "99")
+                      const sizeB = parseFloat(b.details?.parameter_size?.replace(/[^0-9.]/g, "") ?? "99")
+                      return sizeA - sizeB
+                    })
                     const models: Record<string, Model> = {}
-                    for (const m of data.models) {
+                    for (const m of sorted) {
                       const cleanName = m.name.replace(/:latest$/, "")
                       const size = m.details?.parameter_size ? ` ${m.details.parameter_size}` : ""
                       models[cleanName] = makeOllamaModel(cleanName, `${m.name.replace(/:latest$/, "")}${size}`, m.details?.family ?? "", 128000)
