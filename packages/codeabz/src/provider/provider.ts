@@ -182,7 +182,6 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
         async getModel(sdk: any, modelID: string) {
           return sdk.chat?.(modelID) ?? sdk.languageModel(modelID)
         },
-        options: { headerTimeout: 5000, chunkTimeout: 30000 },
       }),
     codeabz: Effect.fnUntraced(function* (input: Info) {
       const env = yield* dep.env()
