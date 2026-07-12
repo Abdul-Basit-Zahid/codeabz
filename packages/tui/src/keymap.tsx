@@ -23,13 +23,13 @@ export const COMMAND_PALETTE_COMMAND = "command.palette.show"
 
 const CODEABZ_MODE_KEY = "codeabz.mode"
 
-export const codeabzKeymapProvider = KeymapProvider
-export const usecodeabzKeymap = useKeymap
+export const CodeabzKeymapProvider = KeymapProvider
+export const useCodeabzKeymap = useKeymap
 
 export { useBindings, useKeymapSelector }
 
 export type OpenTuiKeymap = ReturnType<typeof useKeymap>
-type codeabzModeStack = ReturnType<typeof createcodeabzModeStack>
+type CodeabzModeStack = ReturnType<typeof createCodeabzModeStack>
 type CommandSlashEntry = {
   display: string
   description?: string
@@ -44,13 +44,13 @@ type BindingLookup = {
 type FormatConfig = { keybinds: BindingLookup }
 type ResolvedKeymapConfig = FormatConfig & { leader_timeout: number }
 
-const modeStacks = new WeakMap<OpenTuiKeymap, codeabzModeStack>()
+const modeStacks = new WeakMap<OpenTuiKeymap, CodeabzModeStack>()
 
 function isVisiblePaletteCommand(command: Command) {
   return command.hidden !== true && command.name !== COMMAND_PALETTE_COMMAND
 }
 
-export function createcodeabzModeStack(keymap: OpenTuiKeymap) {
+export function createCodeabzModeStack(keymap: OpenTuiKeymap) {
   keymap.setData(CODEABZ_MODE_KEY, CODEABZ_BASE_MODE)
 
   const offFields = keymap.registerLayerFields({
@@ -99,11 +99,11 @@ export function createcodeabzModeStack(keymap: OpenTuiKeymap) {
   return stackApi
 }
 
-export function usecodeabzModeStack() {
-  return getcodeabzModeStack(usecodeabzKeymap())
+export function useCodeabzModeStack() {
+  return getCodeabzModeStack(useCodeabzKeymap())
 }
 
-export function getcodeabzModeStack(keymap: OpenTuiKeymap) {
+export function getCodeabzModeStack(keymap: OpenTuiKeymap) {
   const value = modeStacks.get(keymap)
   if (!value) throw new Error("codeabz mode stack is not registered for this keymap")
   return value
@@ -211,8 +211,8 @@ export function formatKeyBindings(bindings: Parameters<typeof formatCommandBindi
   return formatCommandBindingsExtra(bindings, formatOptions(config))
 }
 
-export function registercodeabzKeymap(keymap: OpenTuiKeymap, renderer: CliRenderer, config: ResolvedKeymapConfig) {
-  const modeStack = createcodeabzModeStack(keymap)
+export function registerCodeabzKeymap(keymap: OpenTuiKeymap, renderer: CliRenderer, config: ResolvedKeymapConfig) {
+  const modeStack = createCodeabzModeStack(keymap)
   const offCommaBindings = registerCommaBindings(keymap)
   const offAliasExpander = registerKeyAliases(keymap)
   const offBaseLayout = registerBaseLayoutFallback(keymap)
@@ -258,7 +258,7 @@ export function useCommandShortcut(command: string): Accessor<string> {
 }
 
 export function useCommandSlashes(): Accessor<readonly CommandSlashEntry[]> {
-  const keymap = usecodeabzKeymap()
+  const keymap = useCodeabzKeymap()
   const entries = useKeymapSelector((keymap: OpenTuiKeymap) =>
     keymap.getCommandEntries({
       visibility: "reachable",

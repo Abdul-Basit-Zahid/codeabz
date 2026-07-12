@@ -73,10 +73,10 @@ import { CommandPaletteDialog } from "./component/command-palette"
 import {
   COMMAND_PALETTE_COMMAND,
   CODEABZ_BASE_MODE,
-  codeabzKeymapProvider,
-  registercodeabzKeymap,
+  CodeabzKeymapProvider,
+  registerCodeabzKeymap,
   useBindings,
-  usecodeabzKeymap,
+  useCodeabzKeymap,
 } from "./keymap"
 
 import type { EventSource } from "./context/sdk"
@@ -214,7 +214,7 @@ export const run = Effect.fn("Tui.run")(function* (input: TuiInput) {
       win32DisableProcessedInput()
       const keymap = createDefaultOpenTuiKeymap(renderer)
       yield* Effect.acquireRelease(
-        Effect.sync(() => registercodeabzKeymap(keymap, renderer, input.config)),
+        Effect.sync(() => registerCodeabzKeymap(keymap, renderer, input.config)),
         (unregister) => Effect.sync(unregister),
       )
       yield* Effect.addFinalizer(() =>
@@ -279,7 +279,7 @@ export const run = Effect.fn("Tui.run")(function* (input: TuiInput) {
                         }}
                       >
                         <ClipboardProvider>
-                          <codeabzKeymapProvider keymap={keymap}>
+                          <CodeabzKeymapProvider keymap={keymap}>
                             <ArgsProvider {...input.args}>
                               <KVProvider>
                                 <ToastProvider>
@@ -339,7 +339,7 @@ export const run = Effect.fn("Tui.run")(function* (input: TuiInput) {
                                 </ToastProvider>
                               </KVProvider>
                             </ArgsProvider>
-                          </codeabzKeymapProvider>
+                          </CodeabzKeymapProvider>
                         </ClipboardProvider>
                       </TuiStartupProvider>
                     </TuiTerminalEnvironmentProvider>
@@ -371,7 +371,7 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
   const dialog = useDialog()
   const local = useLocal()
   const kv = useKV()
-  const keymap = usecodeabzKeymap()
+  const keymap = useCodeabzKeymap()
   const event = useEvent()
   const sdk = useSDK()
   const toast = useToast()
